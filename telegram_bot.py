@@ -6,10 +6,10 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import threading
 
 # تنظیمات
-BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"  # توکن ربات رو اینجا بزار
+BOT_TOKEN = "8763045779:AAExV3KrNzRhZjFedUW-oQhnXswwAVoVQtQ"  # توکن ربات رو اینجا بزار
 CHANNEL_1 = "phdjld"  # بدون @
 CHANNEL_2 = "poruirlae"  # بدون @
-ADMIN_ID = 123456789  # آیدی ادمین (عددی)
+ADMIN_ID = 8250765957  # آیدی ادمین (عددی)
 
 bot = TeleBot(BOT_TOKEN)
 
