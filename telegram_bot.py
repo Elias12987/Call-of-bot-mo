@@ -3,10 +3,10 @@ from datetime import datetime
 from telebot import TeleBot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
-BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"
+BOT_TOKEN = "8763045779:AAExV3KrNzRhZjFedUW-oQhnXswwAVoVQtQ"
 CHANNEL_1 = "phdjld"
 CHANNEL_2 = "poruirlae"
-ADMIN_ID = 123456789
+ADMIN_ID = 8250765957
 
 bot = TeleBot(BOT_TOKEN)
 
