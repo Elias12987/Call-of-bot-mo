@@ -8,14 +8,14 @@ import schedule
 import time
 
 # تنظیمات
-BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"  # توکن ربات رو اینجا بزار
+BOT_TOKEN = "8763045779:AAExV3KrNzRhZjFedUW-oQhnXswwAVoVQtQ"  # توکن ربات رو اینجا بزار
 CHANNEL_1 = "phdjld"  # بدون @
 CHANNEL_2 = "poruirlae"  # بدون @
 
 # لیست ادمین‌ها (آیدی عددی)
 ADMIN_IDS = [
-    123456789,  # ادمین اول
-    987654321,  # ادمین دوم
+    8256022764,  # ادمین اول
+    8250765957,  # ادمین دوم
     111111111,  # ادمین سوم (دلخواه)
 ]
 
