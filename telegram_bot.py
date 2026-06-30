@@ -3,10 +3,10 @@ from datetime import datetime, date
 from telebot import TeleBot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
-BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"
+BOT_TOKEN = "8763045779:AAExV3KrNzRhZjFedUW-oQhnXswwAVoVQtQ"
 CHANNEL_1 = "phdjld"
 CHANNEL_2 = "poruirlae"
-ADMIN_ID = 123456789
+ADMIN_ID = 8256022764
 
 bot = TeleBot(BOT_TOKEN)
 
@@ -122,10 +122,9 @@ def delete_product(pid):
 
 def can_claim_daily(user_id):
     today = date.today().isoformat()
-    now_hour = datetime.now().hour
-    if now_hour < 3:
+    if datetime.now().hour < 3:
         return False, "❌ امتیاز روزانه از ساعت ۳ فعاله!"
-    conn = sqlite3.connect("bot_data.db")
+    conn = sqlite3.connect('bot_data.db')
     c = conn.cursor()
     c.execute("SELECT 1 FROM daily_claims WHERE user_id=? AND claim_date=?", (user_id, today))
     r = c.fetchone(); conn.close()
@@ -135,7 +134,7 @@ def can_claim_daily(user_id):
 
 def claim_daily(user_id):
     today = date.today().isoformat()
-    conn = sqlite3.connect("bot_data.db")
+    conn = sqlite3.connect('bot_data.db')
     c = conn.cursor()
     c.execute("INSERT OR IGNORE INTO daily_claims VALUES (?,?)", (user_id, today))
     conn.commit(); conn.close()
@@ -161,16 +160,13 @@ def get_stats():
 
 # ==== KEYBOARDS ====
 def main_kb(user_id=None):
-    """منوی اصلی = محصولات از دیتابیس + دعوت دوستان"""
     products = get_products()
     kb = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    # دکمه‌های محصولات
     btns = [KeyboardButton(p[4]) for p in products]
     if btns:
         kb.add(*btns)
-    # دعوت دوستان و امتیاز روزانه
     kb.add(KeyboardButton("👥 دعوت دوستان"), KeyboardButton("🎁امتیاز روزانه🎁"))
-    # پنل ادمین فقط برای ادمین
+    kb.add(KeyboardButton("👤 حساب کاربری"))
     if user_id == ADMIN_ID:
         kb.add(KeyboardButton("⚙️ پنل ادمین"))
     return kb
@@ -194,7 +190,6 @@ def admin_kb():
     )
     return kb
 
-# ==== حالت کاربران ====
 user_states = {}
 
 # ==== START ====
@@ -219,7 +214,6 @@ def start(message):
             except:
                 pass
 
-    # چک عضویت کانال
     if not is_verified(user_id):
         bot.send_message(user_id,
             "برای استفاده از بات، ابتدا در کانال‌های زیر عضو شوید:",
@@ -277,22 +271,18 @@ def handle_message(message):
     user_id = message.from_user.id
     text = message.text
 
-    # اگه در حالت خاصی هست
     if user_id in user_states:
         handle_state(message)
         return
 
-    # بازگشت
     if text == "🔙 بازگشت":
         bot.send_message(user_id, f"💰 امتیاز: {get_points(user_id)}", reply_markup=main_kb(user_id))
         return
 
-    # چک تأیید
     if not is_verified(user_id):
         bot.send_message(user_id, "❌ ابتدا عضویت را تأیید کنید:", reply_markup=channel_inline())
         return
 
-    # امتیاز روزانه
     if text == "🎁امتیاز روزانه🎁":
         can, err_msg = can_claim_daily(user_id)
         if can:
@@ -306,7 +296,41 @@ def handle_message(message):
             bot.send_message(user_id, err_msg, reply_markup=main_kb(user_id))
         return
 
-    # دعوت دوستان
+    if text == "👤 حساب کاربری":
+        user = message.from_user
+        ref_link = f"https://t.me/{bot.get_me().username}?start={user_id}"
+        count = get_referral_count(user_id)
+        pts = get_points(user_id)
+        msg = (
+            f"👤 *حساب کاربری*\n\n"
+            f"📛 نام: {user.full_name}\n"
+            f"🔖 یوزرنیم: @{user.username or 'ندارد'}\n"
+            f"🆔 آیدی عددی: `{user_id}`\n"
+            f"💰 امتیاز: {pts}\n"
+            f"👥 دعوت‌های موفق: {count}\n\n"
+            f"🔗 لینک رفرال:\n`{ref_link}`"
+        )
+        bot.send_message(user_id, msg, parse_mode="Markdown", reply_markup=main_kb(user_id))
+        return
+
+    if text == "👤 حساب کاربری":
+        username = message.from_user.username
+        full_name = message.from_user.full_name
+        pts = get_points(user_id)
+        ref_count = get_referral_count(user_id)
+        link = f"https://t.me/{bot.get_me().username}?start={user_id}"
+        bot.send_message(user_id,
+            f"👤 *حساب کاربری*\n\n"
+            f"📛 نام: {full_name}\n"
+            f"🔖 یوزرنیم: @{username if username else 'ندارد'}\n"
+            f"🆔 آیدی عددی: `{user_id}`\n"
+            f"💰 امتیاز: {pts}\n"
+            f"👥 دعوت‌های موفق: {ref_count}\n\n"
+            f"🔗 لینک رفرال:\n`{link}`",
+            parse_mode="Markdown",
+            reply_markup=main_kb(user_id))
+        return
+
     if text == "👥 دعوت دوستان":
         link = f"https://t.me/{bot.get_me().username}?start={user_id}"
         count = get_referral_count(user_id)
@@ -316,12 +340,10 @@ def handle_message(message):
             parse_mode="HTML", reply_markup=main_kb(user_id))
         return
 
-    # پنل ادمین
     if text == "⚙️ پنل ادمین" and user_id == ADMIN_ID:
         bot.send_message(user_id, "⚙️ پنل ادمین:", reply_markup=admin_kb())
         return
 
-    # دکمه‌های ادمین
     if user_id == ADMIN_ID:
         if text == "➕ افزودن محصول":
             bot.send_message(user_id, "📝 نام محصول را وارد کنید:")
@@ -354,7 +376,6 @@ def handle_message(message):
             user_states[user_id] = {"step": "transfer_amount"}
             return
 
-    # چک محصولات — اگه متن دکمه یه محصول بود
     product = get_product_by_btn(text)
     if product:
         pid, name, cost, desc, btn, action = product
@@ -389,7 +410,7 @@ def handle_state(message):
     if step == "add_desc":
         user_states[user_id]["desc"] = text
         user_states[user_id]["step"] = "add_btn"
-        bot.send_message(user_id, "🔘 متن دکمه را وارد کنید (این روی کیبورد همه نشون داده میشه):")
+        bot.send_message(user_id, "🔘 متن دکمه را وارد کنید:")
         return
     if step == "add_btn":
         user_states[user_id]["btn"] = text
@@ -401,7 +422,7 @@ def handle_state(message):
         add_product(s["name"], s["cost"], s["desc"], s["btn"], text)
         del user_states[user_id]
         bot.send_message(user_id,
-            f"✅ محصول '{s['name']}' اضافه شد!\nدکمه '{s['btn']}' الان توی منوی همه کاربران هست.",
+            f"✅ محصول '{s['name']}' اضافه شد!",
             reply_markup=admin_kb())
         return
 
@@ -416,6 +437,7 @@ def handle_state(message):
                 pass
         del user_states[user_id]
         bot.send_message(user_id, f"✅ پیام به {count} نفر ارسال شد.", reply_markup=admin_kb())
+        return
 
     if step == "transfer_amount":
         try:
@@ -424,7 +446,7 @@ def handle_state(message):
                 raise ValueError
             user_states[user_id]["transfer_amount"] = amount
             user_states[user_id]["step"] = "transfer_id"
-            bot.send_message(user_id, f"👤 آیدی عددی گیرنده را وارد کنید:")
+            bot.send_message(user_id, "👤 آیدی عددی گیرنده را وارد کنید:")
         except:
             bot.send_message(user_id, "❌ عدد صحیح مثبت وارد کنید:")
         return
