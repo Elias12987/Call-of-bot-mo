@@ -320,14 +320,13 @@ def handle_message(message):
         ref_count = get_referral_count(user_id)
         link = f"https://t.me/{bot.get_me().username}?start={user_id}"
         bot.send_message(user_id,
-            f"👤 *حساب کاربری*\n\n"
+            f"👤 حساب کاربری\n\n"
             f"📛 نام: {full_name}\n"
             f"🔖 یوزرنیم: @{username if username else 'ندارد'}\n"
-            f"🆔 آیدی عددی: `{user_id}`\n"
+            f"🆔 آیدی عددی: {user_id}\n"
             f"💰 امتیاز: {pts}\n"
             f"👥 دعوت‌های موفق: {ref_count}\n\n"
-            f"🔗 لینک رفرال:\n`{link}`",
-            parse_mode="Markdown",
+            f"🔗 لینک رفرال:\n{link}",
             reply_markup=main_kb(user_id))
         return
 
